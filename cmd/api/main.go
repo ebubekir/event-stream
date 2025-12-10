@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/ebubekir/event-stream/internal/adapter/inbound/http/middleware"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -15,7 +16,6 @@ import (
 	pgRepo "github.com/ebubekir/event-stream/internal/adapter/outbound/persistence/postgres"
 	eventApp "github.com/ebubekir/event-stream/internal/application/event"
 	eventDomain "github.com/ebubekir/event-stream/internal/domain/event"
-	"github.com/ebubekir/event-stream/internal/middleware"
 	chMigrations "github.com/ebubekir/event-stream/migrations/clickhouse"
 	"github.com/ebubekir/event-stream/pkg/clickhouse"
 	"github.com/ebubekir/event-stream/pkg/config"
