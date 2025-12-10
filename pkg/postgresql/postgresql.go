@@ -2,12 +2,17 @@ package postgresql
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
+
+// schemaNameRegex validates PostgreSQL schema names (alphanumeric and underscores only)
+var schemaNameRegex = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
 // PostgresDb wraps sqlx.DB for connection management
 type PostgresDb struct {
@@ -43,6 +48,11 @@ func (p *PostgresDb) getDB() (*sqlx.DB, error) {
 
 	// Set search_path to use the specified schema
 	if p.Schema != "" {
+		// Validate schema name to prevent SQL injection
+		if !schemaNameRegex.MatchString(p.Schema) {
+			db.Close()
+			return nil, fmt.Errorf("invalid schema name: %s", p.Schema)
+		}
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		_, err = db.ExecContext(ctx, fmt.Sprintf("SET search_path TO %s", p.Schema))
@@ -150,7 +160,7 @@ func NamedGet[T any](db *PostgresDb, dest *T, query string, arg interface{}) err
 	defer rows.Close()
 
 	if !rows.Next() {
-		return fmt.Errorf("no rows found")
+		return sql.ErrNoRows
 	}
 
 	return rows.StructScan(dest)
@@ -188,6 +198,11 @@ func Transaction(db *PostgresDb, fn func(*sqlx.Tx) error) error {
 
 	// Ensure schema is set for this transaction
 	if db.Schema != "" {
+		// Schema name already validated in getDB, but double-check for safety
+		if !schemaNameRegex.MatchString(db.Schema) {
+			_ = tx.Rollback()
+			return fmt.Errorf("invalid schema name: %s", db.Schema)
+		}
 		_, err = tx.ExecContext(ctx, fmt.Sprintf("SET search_path TO %s", db.Schema))
 		if err != nil {
 			_ = tx.Rollback()
