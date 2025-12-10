@@ -20,12 +20,18 @@ const (
 	EnvironmentTypeProd EnvironmentType = "prod"
 )
 
+type LogConfig struct {
+	Level  string `mapstructure:"level" yaml:"level"`   // debug, info, warn, error
+	Format string `mapstructure:"format" yaml:"format"` // json, console
+}
+
 type AppConfig struct {
 	EnvironmentType EnvironmentType       `mapstructure:"environment_type" yaml:"environment_type"`
 	Port            string                `mapstructure:"port" yaml:"port"`
 	DatabaseType    SupportedDatabaseType `mapstructure:"database_type" yaml:"database_type"`
 	PostgresSQLUrl  string                `mapstructure:"postgres_url" yaml:"postgres_url"`
 	ClickhouseUrl   string                `mapstructure:"clickhouse_url" yaml:"clickhouse_url"`
+	Log             LogConfig             `mapstructure:"log" yaml:"log"`
 }
 
 func Read() *AppConfig {

@@ -3,3 +3,7 @@ port: 8080
 database_type: "clickhouse"
 clickhouse_url: "http://user:1234@0.0.0.0:8123"
 postgres_url: "postgres://postgres:123@localhost:5432/postgres"
+
+log:
+  level: "debug"    # debug, info, warn, error
+  format: "console" # json, console

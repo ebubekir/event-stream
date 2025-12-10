@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
 
 	"github.com/ebubekir/event-stream/cmd/api/docs"
 	"github.com/ebubekir/event-stream/internal/adapter/inbound/http/handler"
@@ -19,11 +19,21 @@ import (
 	chMigrations "github.com/ebubekir/event-stream/migrations/clickhouse"
 	"github.com/ebubekir/event-stream/pkg/clickhouse"
 	"github.com/ebubekir/event-stream/pkg/config"
+	"github.com/ebubekir/event-stream/pkg/logger"
 	"github.com/ebubekir/event-stream/pkg/postgresql"
 )
 
 func main() {
 	cfg := config.Read()
+
+	// Initialize logger
+	if err := logger.Init(logger.Config{
+		Level:  cfg.Log.Level,
+		Format: cfg.Log.Format,
+	}); err != nil {
+		panic(fmt.Sprintf("failed to initialize logger: %v", err))
+	}
+	defer logger.Sync()
 
 	// Initialize repository and metrics reader based on database type
 	var eventRepository eventDomain.EventRepository
@@ -33,33 +43,33 @@ func main() {
 	case config.DatabaseTypePostgres:
 		db := postgresql.New(cfg.PostgresSQLUrl, "public")
 		if err := db.CheckConnection(); err != nil {
-			log.Fatalf("failed to connect to PostgreSQL: %v", err)
+			logger.Fatal("failed to connect to PostgreSQL", zap.Error(err))
 		}
 		eventRepository = pgRepo.NewEventRepository(db)
 		metricsReader = pgRepo.NewMetricsReader(db)
-		log.Println("Using PostgreSQL as event store")
+		logger.Info("Using PostgreSQL as event store")
 
 	case config.DatabaseTypeClickhouse:
 		db := clickhouse.New(cfg.ClickhouseUrl, "default")
 		if err := db.CheckConnection(); err != nil {
-			log.Fatalf("failed to connect to ClickHouse: %v", err)
+			logger.Fatal("failed to connect to ClickHouse", zap.Error(err))
 		}
 
 		// Run ClickHouse migrations
 		migrator, err := clickhouse.NewMigrator(db, chMigrations.MigrationFS)
 		if err != nil {
-			log.Fatalf("failed to create migrator: %v", err)
+			logger.Fatal("failed to create migrator", zap.Error(err))
 		}
 		if err := migrator.Up(context.Background()); err != nil {
-			log.Fatalf("failed to run migrations: %v", err)
+			logger.Fatal("failed to run migrations", zap.Error(err))
 		}
 
 		eventRepository = chRepo.NewEventRepository(db)
 		metricsReader = chRepo.NewMetricsReader(db)
-		log.Println("Using ClickHouse as event store")
+		logger.Info("Using ClickHouse as event store")
 
 	default:
-		log.Fatalf("unsupported database type: %s", cfg.DatabaseType)
+		logger.Fatal("unsupported database type", zap.String("type", string(cfg.DatabaseType)))
 	}
 
 	// Swagger settings
@@ -93,8 +103,8 @@ func main() {
 	eventHandler.RegisterRoutes(v1)
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
-	log.Printf("Starting server on %s", addr)
+	logger.Info("Starting server", zap.String("address", addr))
 	if err := api.Run(addr); err != nil {
-		log.Fatalf("failed to start server: %v", err)
+		logger.Fatal("failed to start server", zap.Error(err))
 	}
 }
