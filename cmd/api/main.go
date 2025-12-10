@@ -1,23 +1,25 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"github.com/ebubekir/event-stream/cmd/api/docs"
-	swaggerFiles "github.com/swaggo/files"
 	"log"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
+	"github.com/ebubekir/event-stream/cmd/api/docs"
 	"github.com/ebubekir/event-stream/internal/adapter/inbound/http/handler"
 	chRepo "github.com/ebubekir/event-stream/internal/adapter/outbound/persistence/clickhouse"
 	pgRepo "github.com/ebubekir/event-stream/internal/adapter/outbound/persistence/postgres"
 	eventApp "github.com/ebubekir/event-stream/internal/application/event"
 	eventDomain "github.com/ebubekir/event-stream/internal/domain/event"
 	"github.com/ebubekir/event-stream/internal/middleware"
+	chMigrations "github.com/ebubekir/event-stream/migrations/clickhouse"
 	"github.com/ebubekir/event-stream/pkg/clickhouse"
 	"github.com/ebubekir/event-stream/pkg/config"
 	"github.com/ebubekir/event-stream/pkg/postgresql"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -39,6 +41,16 @@ func main() {
 		if err := db.CheckConnection(); err != nil {
 			log.Fatalf("failed to connect to ClickHouse: %v", err)
 		}
+
+		// Run ClickHouse migrations
+		migrator, err := clickhouse.NewMigrator(db, chMigrations.MigrationFS)
+		if err != nil {
+			log.Fatalf("failed to create migrator: %v", err)
+		}
+		if err := migrator.Up(context.Background()); err != nil {
+			log.Fatalf("failed to run migrations: %v", err)
+		}
+
 		eventRepository = chRepo.NewEventRepository(db)
 		log.Println("Using ClickHouse as event store")
 

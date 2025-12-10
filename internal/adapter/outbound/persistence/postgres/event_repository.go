@@ -26,8 +26,8 @@ type eventModel struct {
 	ID                string `db:"id"`
 	Name              string `db:"name"`
 	ChannelType       string `db:"channel_type"`
-	Timestamp         uint16 `db:"timestamp"`
-	PreviousTimestamp uint16 `db:"previous_timestamp"`
+	Timestamp         int64  `db:"timestamp"`
+	PreviousTimestamp int64  `db:"previous_timestamp"`
 	Date              string `db:"date"`
 	EventParams       string `db:"event_params"` // JSON
 	UserID            string `db:"user_id"`
@@ -130,7 +130,7 @@ func toModel(event *domain.Event) (*eventModel, error) {
 		ChannelType:       string(event.ChannelType),
 		Timestamp:         event.Timestamp,
 		PreviousTimestamp: event.PreviousTimestamp,
-		Date:              event.Date.Format("2006-01-02 15:04:05"),
+		Date:              event.Date,
 		EventParams:       string(eventParams),
 		UserID:            event.UserID,
 		UserPseudoID:      event.UserPseudoID,

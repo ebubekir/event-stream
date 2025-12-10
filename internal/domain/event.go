@@ -1,7 +1,5 @@
 package domain
 
-import "time"
-
 type ChannelType string
 
 const (
@@ -64,9 +62,9 @@ type Item struct {
 
 type Event struct {
 	ID                string
-	Timestamp         uint16
-	PreviousTimestamp uint16
-	Date              time.Time
+	Timestamp         int64
+	PreviousTimestamp int64
+	Date              string
 	Name              string
 	ChannelType
 	EventParams  []Param

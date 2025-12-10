@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"time"
-
 	"github.com/ebubekir/event-stream/internal/application/event"
 	"github.com/ebubekir/event-stream/internal/domain"
 )
@@ -11,9 +9,9 @@ import (
 type CreateEventRequest struct {
 	Name              string         `json:"name" binding:"required"`
 	ChannelType       string         `json:"channel_type" binding:"required,oneof=web mobile desktop tv console other"`
-	Timestamp         uint16         `json:"timestamp"`
-	PreviousTimestamp uint16         `json:"previous_timestamp"`
-	Date              time.Time      `json:"date"`
+	Timestamp         int64          `json:"timestamp"`
+	PreviousTimestamp int64          `json:"previous_timestamp"`
+	Date              string         `json:"date"`
 	EventParams       []ParamRequest `json:"event_params"`
 	UserID            string         `json:"user_id"`
 	UserPseudoID      string         `json:"user_pseudo_id"`

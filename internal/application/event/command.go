@@ -1,8 +1,6 @@
 package event
 
 import (
-	"time"
-
 	"github.com/ebubekir/event-stream/internal/domain"
 )
 
@@ -10,9 +8,9 @@ import (
 type CreateEventCommand struct {
 	Name              string
 	ChannelType       domain.ChannelType
-	Timestamp         uint16
-	PreviousTimestamp uint16
-	Date              time.Time
+	Timestamp         int64
+	PreviousTimestamp int64
+	Date              string
 	EventParams       []ParamDTO
 	UserID            string
 	UserPseudoID      string
