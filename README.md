@@ -56,6 +56,34 @@ docker run -d \
 go run ./cmd/api
 ```
 
+## Project Structure
+
+This project uses **DDD (Domain-Driven Design)** and **Hexagonal Architecture**.
+
+```
+internal/
+├── domain/        # Business logic (no external deps)
+├── application/   # Use cases and services
+└── adapter/       # HTTP handlers, DB implementations
+```
+
+### Why This Architecture?
+
+- **Easy to test**: Business logic is separate from database and HTTP code
+- **Easy to change**: Want to switch from ClickHouse to PostgreSQL? Just change the adapter
+- **Clear boundaries**: Each layer has one job
+
+Dependencies flow inward: `adapter → application → domain`
+
+## Why ClickHouse?
+
+This service handles lots of events per second. ClickHouse is built for this:
+
+- **Fast writes**: Can handle millions of rows per second
+- **Fast reads**: Column-based storage makes aggregation queries very fast
+- **Built for analytics**: Perfect for "count events by name" or "events in last hour" queries
+- **Efficient storage**: Compresses data well, saves disk space
+
 ## API
 
 ### Endpoints
@@ -219,34 +247,6 @@ Response:
   ]
 }
 ```
-
-## Project Structure
-
-This project uses **DDD (Domain-Driven Design)** and **Hexagonal Architecture**.
-
-```
-internal/
-├── domain/        # Business logic (no external deps)
-├── application/   # Use cases and services
-└── adapter/       # HTTP handlers, DB implementations
-```
-
-### Why This Architecture?
-
-- **Easy to test**: Business logic is separate from database and HTTP code
-- **Easy to change**: Want to switch from ClickHouse to PostgreSQL? Just change the adapter
-- **Clear boundaries**: Each layer has one job
-
-Dependencies flow inward: `adapter → application → domain`
-
-## Why ClickHouse?
-
-This service handles lots of events per second. ClickHouse is built for this:
-
-- **Fast writes**: Can handle millions of rows per second
-- **Fast reads**: Column-based storage makes aggregation queries very fast
-- **Built for analytics**: Perfect for "count events by name" or "events in last hour" queries
-- **Efficient storage**: Compresses data well, saves disk space
 
 ## Future Improvements
 
