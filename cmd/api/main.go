@@ -25,8 +25,10 @@ import (
 func main() {
 	cfg := config.Read()
 
-	// Initialize repository based on database type
+	// Initialize repository and metrics reader based on database type
 	var eventRepository eventDomain.EventRepository
+	var metricsReader eventDomain.EventMetricsReader
+
 	switch cfg.DatabaseType {
 	case config.DatabaseTypePostgres:
 		db := postgresql.New(cfg.PostgresSQLUrl, "public")
@@ -34,6 +36,7 @@ func main() {
 			log.Fatalf("failed to connect to PostgreSQL: %v", err)
 		}
 		eventRepository = pgRepo.NewEventRepository(db)
+		metricsReader = pgRepo.NewMetricsReader(db)
 		log.Println("Using PostgreSQL as event store")
 
 	case config.DatabaseTypeClickhouse:
@@ -52,6 +55,7 @@ func main() {
 		}
 
 		eventRepository = chRepo.NewEventRepository(db)
+		metricsReader = chRepo.NewMetricsReader(db)
 		log.Println("Using ClickHouse as event store")
 
 	default:
@@ -72,7 +76,7 @@ func main() {
 	}
 
 	// Initialize application services
-	eventService := eventApp.NewEventService(eventRepository)
+	eventService := eventApp.NewEventService(eventRepository, metricsReader)
 
 	// Initialize HTTP handlers
 	eventHandler := handler.NewEventHandler(eventService)

@@ -12,13 +12,15 @@ import (
 
 // EventService handles event-related use cases
 type EventService struct {
-	repo eventRepo.EventRepository
+	repo          eventRepo.EventRepository
+	metricsReader eventRepo.EventMetricsReader
 }
 
-// NewEventService creates a new EventService with the given repository
-func NewEventService(repo eventRepo.EventRepository) *EventService {
+// NewEventService creates a new EventService with the given repository and metrics reader
+func NewEventService(repo eventRepo.EventRepository, metricsReader eventRepo.EventMetricsReader) *EventService {
 	return &EventService{
-		repo: repo,
+		repo:          repo,
+		metricsReader: metricsReader,
 	}
 }
 
@@ -58,4 +60,14 @@ func (s *EventService) CreateEvents(ctx context.Context, cmds []*CreateEventComm
 	}
 
 	return ids, nil
+}
+
+// GetMetrics retrieves aggregated metrics for events
+func (s *EventService) GetMetrics(ctx context.Context, query *GetMetricsQuery) (*MetricsResultDTO, error) {
+	result, err := s.metricsReader.GetMetrics(ctx, query.ToMetricsQuery())
+	if err != nil {
+		return nil, fmt.Errorf("failed to get metrics: %w", err)
+	}
+
+	return FromMetricsResult(result), nil
 }

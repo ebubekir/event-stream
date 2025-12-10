@@ -84,6 +84,57 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/events/metrics": {
+            "get": {
+                "description": "Retrieves aggregated metrics for events with optional grouping",
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get event metrics",
+                "operationId": "GetMetrics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event name to filter by",
+                        "name": "event_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start timestamp (RFC3339 format)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End timestamp (RFC3339 format)",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Aggregation type: channel, daily, hourly",
+                        "name": "group_by",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetMetricsResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -237,6 +288,46 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "GetMetricsResponse": {
+            "type": "object",
+            "properties": {
+                "event_name": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "grouped_metrics": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GroupedMetricResponse"
+                    }
+                },
+                "to": {
+                    "type": "string"
+                },
+                "total_count": {
+                    "type": "integer"
+                },
+                "unique_user_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "GroupedMetricResponse": {
+            "type": "object",
+            "properties": {
+                "group_key": {
+                    "type": "string"
+                },
+                "total_count": {
+                    "type": "integer"
+                },
+                "unique_user_count": {
+                    "type": "integer"
                 }
             }
         },

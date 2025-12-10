@@ -78,11 +78,46 @@ func (h *EventHandler) CreateEventBatch(c *gin.Context) {
 	c.JSON(http.StatusCreated, dto.CreateEventBatchResponse{IDs: ids})
 }
 
+// GetMetrics
+// @ID GetMetrics
+// @Summary Get event metrics
+// @Description Retrieves aggregated metrics for events with optional grouping
+// @Tags events
+// @Param event_name query string true "Event name to filter by"
+// @Param from query string false "Start timestamp (RFC3339 format)"
+// @Param to query string false "End timestamp (RFC3339 format)"
+// @Param group_by query string false "Aggregation type: channel, daily, hourly"
+// @Success 200 {object} dto.GetMetricsResponse
+// @Failure default {object} response.ApiError
+// @Router /events/metrics [get]
+func (h *EventHandler) GetMetrics(c *gin.Context) {
+	var req dto.GetMetricsRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.BadRequest(c, err)
+		return
+	}
+
+	query, err := req.ToQuery()
+	if err != nil {
+		response.BadRequest(c, err)
+		return
+	}
+
+	result, err := h.service.GetMetrics(c.Request.Context(), query)
+	if err != nil {
+		response.SystemError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.FromMetricsResultDTO(result))
+}
+
 // RegisterRoutes registers event routes on the given router group
 func (h *EventHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	events := rg.Group("/events")
 	{
 		events.POST("", h.CreateEvent)
 		events.POST("/batch", h.CreateEventBatch)
+		events.GET("/metrics", h.GetMetrics)
 	}
 }

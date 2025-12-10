@@ -101,6 +101,32 @@ definitions:
     - code
     - message
     type: object
+  GetMetricsResponse:
+    properties:
+      event_name:
+        type: string
+      from:
+        type: string
+      grouped_metrics:
+        items:
+          $ref: '#/definitions/GroupedMetricResponse'
+        type: array
+      to:
+        type: string
+      total_count:
+        type: integer
+      unique_user_count:
+        type: integer
+    type: object
+  GroupedMetricResponse:
+    properties:
+      group_key:
+        type: string
+      total_count:
+        type: integer
+      unique_user_count:
+        type: integer
+    type: object
   ItemRequest:
     properties:
       brand:
@@ -192,6 +218,40 @@ paths:
           schema:
             $ref: '#/definitions/Error'
       summary: Create multiple events
+      tags:
+      - events
+  /events/metrics:
+    get:
+      description: Retrieves aggregated metrics for events with optional grouping
+      operationId: GetMetrics
+      parameters:
+      - description: Event name to filter by
+        in: query
+        name: event_name
+        required: true
+        type: string
+      - description: Start timestamp (RFC3339 format)
+        in: query
+        name: from
+        type: string
+      - description: End timestamp (RFC3339 format)
+        in: query
+        name: to
+        type: string
+      - description: 'Aggregation type: channel, daily, hourly'
+        in: query
+        name: group_by
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetMetricsResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get event metrics
       tags:
       - events
 swagger: "2.0"
