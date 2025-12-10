@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/ebubekir/event-stream/cmd/api/docs"
+	swaggerFiles "github.com/swaggo/files"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +17,7 @@ import (
 	"github.com/ebubekir/event-stream/pkg/clickhouse"
 	"github.com/ebubekir/event-stream/pkg/config"
 	"github.com/ebubekir/event-stream/pkg/postgresql"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -43,6 +46,19 @@ func main() {
 		log.Fatalf("unsupported database type: %s", cfg.DatabaseType)
 	}
 
+	// Swagger settings
+
+	switch cfg.EnvironmentType {
+	case config.EnvironmentTypeDev:
+		docs.SwaggerInfo.Title = "event-stream [development]"
+		docs.SwaggerInfo.Host = "localhost:8080/v1"
+		docs.SwaggerInfo.Schemes = []string{"http"}
+	case config.EnvironmentTypeProd:
+		docs.SwaggerInfo.Title = "event-stream [prod]"
+		docs.SwaggerInfo.Host = "localhost:8080/v1"
+		docs.SwaggerInfo.Schemes = []string{"https"}
+	}
+
 	// Initialize application services
 	eventService := eventApp.NewEventService(eventRepository)
 
@@ -54,12 +70,11 @@ func main() {
 	api.Use(middleware.CustomRecovery())
 	api.Use(gin.Logger())
 
-	// Register routes
-	v1 := api.Group("/api/v1")
-	eventHandler.RegisterRoutes(v1)
+	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// TODO: Graceful shutdown
-	// TODO: Logging
+	// Register routes
+	v1 := api.Group("/v1")
+	eventHandler.RegisterRoutes(v1)
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
 	log.Printf("Starting server on %s", addr)

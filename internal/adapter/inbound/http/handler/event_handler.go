@@ -22,16 +22,14 @@ func NewEventHandler(service *event.EventService) *EventHandler {
 	}
 }
 
-// CreateEvent handles POST /events
+// CreateEvent
+// @ID CreateEvent
 // @Summary Create a new event
 // @Description Creates a new event and persists it to the configured database
 // @Tags events
-// @Accept json
-// @Produce json
 // @Param event body dto.CreateEventRequest true "Event data"
 // @Success 201 {object} dto.CreateEventResponse
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
+// @Failure default {object} response.ApiError
 // @Router /events [post]
 func (h *EventHandler) CreateEvent(c *gin.Context) {
 	var req dto.CreateEventRequest
@@ -50,16 +48,14 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 	c.JSON(http.StatusCreated, dto.CreateEventResponse{ID: id})
 }
 
-// CreateEventBatch handles POST /events/batch
+// CreateEventBatch
+// @ID CreateEventBatch
 // @Summary Create multiple events
 // @Description Creates multiple events in a single batch operation
 // @Tags events
-// @Accept json
-// @Produce json
 // @Param events body dto.CreateEventBatchRequest true "Events data"
 // @Success 201 {object} dto.CreateEventBatchResponse
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
+// @Failure default {object} response.ApiError
 // @Router /events/batch [post]
 func (h *EventHandler) CreateEventBatch(c *gin.Context) {
 	var req dto.CreateEventBatchRequest

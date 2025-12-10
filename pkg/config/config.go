@@ -21,7 +21,7 @@ const (
 )
 
 type AppConfig struct {
-	EnvironmentType string                `mapstructure:"environment_type" yaml:"environment_type"`
+	EnvironmentType EnvironmentType       `mapstructure:"environment_type" yaml:"environment_type"`
 	Port            string                `mapstructure:"port" yaml:"port"`
 	DatabaseType    SupportedDatabaseType `mapstructure:"database_type" yaml:"database_type"`
 	PostgresSQLUrl  string                `mapstructure:"postgres_url" yaml:"postgres_url"`

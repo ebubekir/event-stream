@@ -21,7 +21,7 @@ type CreateEventRequest struct {
 	Device            DeviceRequest  `json:"device"`
 	AppInfo           AppInfoRequest `json:"app_info"`
 	Items             []ItemRequest  `json:"items"`
-}
+} // @name CreateEventRequest
 
 // ParamRequest represents a parameter in HTTP request
 type ParamRequest struct {
@@ -29,7 +29,7 @@ type ParamRequest struct {
 	StringValue  string  `json:"string_value"`
 	NumberValue  float64 `json:"number_value"`
 	BooleanValue bool    `json:"boolean_value"`
-}
+} // @name ParamRequest
 
 // DeviceRequest represents device information in HTTP request
 type DeviceRequest struct {
@@ -42,13 +42,13 @@ type DeviceRequest struct {
 	BrowserName            string `json:"browser_name"`
 	BrowserVersion         string `json:"browser_version"`
 	Hostname               string `json:"hostname"`
-}
+} // @name DeviceRequest
 
 // AppInfoRequest represents app information in HTTP request
 type AppInfoRequest struct {
 	ID      string `json:"id"`
 	Version string `json:"version"`
-}
+} // @name AppInfoRequest
 
 // ItemRequest represents an item in HTTP request
 type ItemRequest struct {
@@ -65,22 +65,22 @@ type ItemRequest struct {
 	PromotionId   string         `json:"promotion_id"`
 	PromotionName string         `json:"promotion_name"`
 	Params        []ParamRequest `json:"params"`
-}
+} // @name ItemRequest
 
 // CreateEventResponse represents the HTTP response after creating an event
 type CreateEventResponse struct {
 	ID string `json:"id"`
-}
+} // @name CreateEventResponse
 
 // CreateEventBatchRequest represents batch event creation request
 type CreateEventBatchRequest struct {
 	Events []CreateEventRequest `json:"events" binding:"required,dive"`
-}
+} // @name CreateEventBatchRequest
 
 // CreateEventBatchResponse represents batch event creation response
 type CreateEventBatchResponse struct {
 	IDs []string `json:"ids"`
-}
+} // @name CreateEventBatchResponse
 
 // ToCommand converts HTTP DTO to application command
 func (r *CreateEventRequest) ToCommand() *event.CreateEventCommand {

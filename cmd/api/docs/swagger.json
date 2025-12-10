@@ -1,0 +1,300 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/events": {
+            "post": {
+                "description": "Creates a new event and persists it to the configured database",
+                "tags": [
+                    "events"
+                ],
+                "summary": "Create a new event",
+                "operationId": "CreateEvent",
+                "parameters": [
+                    {
+                        "description": "Event data",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateEventRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/CreateEventResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/batch": {
+            "post": {
+                "description": "Creates multiple events in a single batch operation",
+                "tags": [
+                    "events"
+                ],
+                "summary": "Create multiple events",
+                "operationId": "CreateEventBatch",
+                "parameters": [
+                    {
+                        "description": "Events data",
+                        "name": "events",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateEventBatchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/CreateEventBatchResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "AppInfoRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "CreateEventBatchRequest": {
+            "type": "object",
+            "required": [
+                "events"
+            ],
+            "properties": {
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CreateEventRequest"
+                    }
+                }
+            }
+        },
+        "CreateEventBatchResponse": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "CreateEventRequest": {
+            "type": "object",
+            "required": [
+                "channel_type",
+                "name"
+            ],
+            "properties": {
+                "app_info": {
+                    "$ref": "#/definitions/AppInfoRequest"
+                },
+                "channel_type": {
+                    "type": "string",
+                    "enum": [
+                        "web",
+                        "mobile",
+                        "desktop",
+                        "tv",
+                        "console",
+                        "other"
+                    ]
+                },
+                "date": {
+                    "type": "string"
+                },
+                "device": {
+                    "$ref": "#/definitions/DeviceRequest"
+                },
+                "event_params": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ParamRequest"
+                    }
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ItemRequest"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "previous_timestamp": {
+                    "type": "integer"
+                },
+                "timestamp": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "user_params": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ParamRequest"
+                    }
+                },
+                "user_pseudo_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "CreateEventResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "DeviceRequest": {
+            "type": "object",
+            "properties": {
+                "browser_name": {
+                    "type": "string"
+                },
+                "browser_version": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "mobile_brand_name": {
+                    "type": "string"
+                },
+                "mobile_model_name": {
+                    "type": "string"
+                },
+                "operating_system": {
+                    "type": "string"
+                },
+                "operating_system_version": {
+                    "type": "string"
+                }
+            }
+        },
+        "Error": {
+            "type": "object",
+            "required": [
+                "code",
+                "message"
+            ],
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ItemRequest": {
+            "type": "object",
+            "properties": {
+                "brand": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "list_id": {
+                    "type": "string"
+                },
+                "list_name": {
+                    "type": "string"
+                },
+                "location_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ParamRequest"
+                    }
+                },
+                "price_in_usd": {
+                    "type": "number"
+                },
+                "promotion_id": {
+                    "type": "string"
+                },
+                "promotion_name": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "revenue_in_usd": {
+                    "type": "number"
+                },
+                "variant": {
+                    "type": "string"
+                }
+            }
+        },
+        "ParamRequest": {
+            "type": "object",
+            "required": [
+                "key"
+            ],
+            "properties": {
+                "boolean_value": {
+                    "type": "boolean"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "number_value": {
+                    "type": "number"
+                },
+                "string_value": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,197 @@
+definitions:
+  AppInfoRequest:
+    properties:
+      id:
+        type: string
+      version:
+        type: string
+    type: object
+  CreateEventBatchRequest:
+    properties:
+      events:
+        items:
+          $ref: '#/definitions/CreateEventRequest'
+        type: array
+    required:
+    - events
+    type: object
+  CreateEventBatchResponse:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
+    type: object
+  CreateEventRequest:
+    properties:
+      app_info:
+        $ref: '#/definitions/AppInfoRequest'
+      channel_type:
+        enum:
+        - web
+        - mobile
+        - desktop
+        - tv
+        - console
+        - other
+        type: string
+      date:
+        type: string
+      device:
+        $ref: '#/definitions/DeviceRequest'
+      event_params:
+        items:
+          $ref: '#/definitions/ParamRequest'
+        type: array
+      items:
+        items:
+          $ref: '#/definitions/ItemRequest'
+        type: array
+      name:
+        type: string
+      previous_timestamp:
+        type: integer
+      timestamp:
+        type: integer
+      user_id:
+        type: string
+      user_params:
+        items:
+          $ref: '#/definitions/ParamRequest'
+        type: array
+      user_pseudo_id:
+        type: string
+    required:
+    - channel_type
+    - name
+    type: object
+  CreateEventResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  DeviceRequest:
+    properties:
+      browser_name:
+        type: string
+      browser_version:
+        type: string
+      category:
+        type: string
+      hostname:
+        type: string
+      language:
+        type: string
+      mobile_brand_name:
+        type: string
+      mobile_model_name:
+        type: string
+      operating_system:
+        type: string
+      operating_system_version:
+        type: string
+    type: object
+  Error:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    required:
+    - code
+    - message
+    type: object
+  ItemRequest:
+    properties:
+      brand:
+        type: string
+      id:
+        type: string
+      list_id:
+        type: string
+      list_name:
+        type: string
+      location_id:
+        type: string
+      name:
+        type: string
+      params:
+        items:
+          $ref: '#/definitions/ParamRequest'
+        type: array
+      price_in_usd:
+        type: number
+      promotion_id:
+        type: string
+      promotion_name:
+        type: string
+      quantity:
+        type: integer
+      revenue_in_usd:
+        type: number
+      variant:
+        type: string
+    type: object
+  ParamRequest:
+    properties:
+      boolean_value:
+        type: boolean
+      key:
+        type: string
+      number_value:
+        type: number
+      string_value:
+        type: string
+    required:
+    - key
+    type: object
+info:
+  contact: {}
+paths:
+  /events:
+    post:
+      description: Creates a new event and persists it to the configured database
+      operationId: CreateEvent
+      parameters:
+      - description: Event data
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/CreateEventRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/CreateEventResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Create a new event
+      tags:
+      - events
+  /events/batch:
+    post:
+      description: Creates multiple events in a single batch operation
+      operationId: CreateEventBatch
+      parameters:
+      - description: Events data
+        in: body
+        name: events
+        required: true
+        schema:
+          $ref: '#/definitions/CreateEventBatchRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/CreateEventBatchResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Create multiple events
+      tags:
+      - events
+swagger: "2.0"
